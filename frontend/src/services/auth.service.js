@@ -35,15 +35,31 @@ const logout = () => {
   });
 };
 
+const forgetPassword = (email) => {
+  return axios.post(API_URL + "reset_password/", {
+    email,
+  });
+}
+
 const getCurrentUser = () => {
   return JSON.parse(localStorage.getItem("user"));
 };
+
+const changePassword = (user_id, password) => {
+  return axios.post(API_URL + user_id + "/change_password/", {
+    password
+  }).catch((error) => {
+    return error.response
+  })
+}
 
 const AuthService = {
   register,
   login,
   logout,
   getCurrentUser,
+  forgetPassword,
+  changePassword,
 }
 
 export default AuthService;

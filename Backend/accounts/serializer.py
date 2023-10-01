@@ -1,7 +1,13 @@
+# from allauth.account.forms import ResetPasswordForm
+from rest_framework import status
+# from allauth.account.views import PasswordResetView
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.contrib.auth.models import Group
 from accounts.models import User
 from rest_framework import serializers
 from django.contrib.auth.forms import PasswordResetForm
+
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -12,12 +18,11 @@ class PasswordResetSerializer(serializers.Serializer):
         """
         data = {'email': value}
         form = PasswordResetForm(data=data)
-        
+
         if form.is_valid():
             return value
         else:
             raise serializers.ValidationError("Invalid email address")
-
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -30,6 +35,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
         fields = ['url', 'name']
+
 
 class UserSerializerData(serializers.ModelSerializer):
     class Meta:
@@ -46,3 +52,7 @@ class UserSerializerData(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()

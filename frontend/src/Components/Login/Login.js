@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import AuthService from "../../services/auth.service";
 export const Login = () => {
@@ -55,10 +55,10 @@ export const Login = () => {
             </button>
           </div>
           <p className="forgot-password text-right mt-2">
-            Forgot <a href="/">password?</a>
+            Forgot <Link to="/forget-password">password?</Link>
           </p>
           <p className="signup-btn text-right mt-2">
-            Dont have a account ? <a href="/signup">Register here</a>
+            Dont have a account ? <Link to="/signup">Register here</Link>
           </p>
         </div>
       </form>

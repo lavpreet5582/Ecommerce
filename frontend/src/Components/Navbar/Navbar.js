@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
   const handleSignIn = () => {
     navigate('/login');
+  }
+  const handleSignOut = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate('/');
   }
   return (
     <>
@@ -60,9 +66,18 @@ export const Navbar = () => {
                   Search
                 </button>
               </form>
-              <button className="btn btn-outline-success mx-2" type="button" onClick={()=>{handleSignIn()}}>
+              {user ? (
+                <button className="btn btn-outline-success mx-2" type="button" onClick={()=>{handleSignOut()}}>
+                  Logout
+                </button>
+              ):(
+                <button className="btn btn-outline-success mx-2" type="button" onClick={()=>{handleSignIn()}}>
+                  Sign In
+                </button>
+              )}
+              {/* <button className="btn btn-outline-success mx-2" type="button" onClick={()=>{handleSignIn()}}>
                 Sign In
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

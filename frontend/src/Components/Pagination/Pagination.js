@@ -46,9 +46,7 @@ export const Pagination = (props) => {
                   handleItemclick(index + 1);
                 }}
               >
-                <button className="page-link">
-                  {index + 1}
-                </button>
+                <button className="page-link">{index + 1}</button>
               </li>
             ))}
             <li className="page-item">

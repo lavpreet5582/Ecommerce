@@ -64,6 +64,10 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'products',
+    # 'crispy_forms',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
 ]
 
 MIDDLEWARE = [
@@ -75,14 +79,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    # 'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'Backend.urls'
-
+import os
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -111,7 +116,7 @@ WSGI_APPLICATION = 'Backend.wsgi.application'
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'ecommerce_db',
+       'NAME': 'newcommerce1',
        'USER': 'lavpreet',
        'PASSWORD': 'Test@123',
        'HOST': 'localhost',
@@ -182,3 +187,23 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
 }
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# Configure email settings for password reset
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'lsv2885657@gmail.com'
+EMAIL_HOST_PASSWORD = 'blgg nxvn myev oyzo'
+
+
+
+# URL where the password reset form is sent
+PASSWORD_RESET_CONFIRM = 'password-reset-confirm/<uidb64>/<token>/'
+
+# AUTHENTICATION_BACKENDS = (
+#     # ...
+#     # 'allauth.account.auth_backends.AuthenticationBackend',
+# )

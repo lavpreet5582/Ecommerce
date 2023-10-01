@@ -15,13 +15,16 @@ export const Products = () => {
     });
     // const data = await response.json();
     // const data = response
-    console.log(response)
-    const data = response.data
+    console.log(response);
+    const data = response.data;
     setProductsList(data);
   };
 
   useEffect(() => {
-    getProducts();
+    let user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      getProducts();
+    }
     // eslint-disable-next-line
   }, []);
   return (
