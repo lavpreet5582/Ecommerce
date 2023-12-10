@@ -64,6 +64,8 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'products',
+    'cart',
+    'orders',
     # 'crispy_forms',
     # 'allauth',
     # 'allauth.account',
@@ -116,7 +118,7 @@ WSGI_APPLICATION = 'Backend.wsgi.application'
 DATABASES = {
    'default': {
        'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'newcommerce1',
+       'NAME': 'newecommerce1',
        'USER': 'lavpreet',
        'PASSWORD': 'Test@123',
        'HOST': 'localhost',
@@ -207,3 +209,25 @@ PASSWORD_RESET_CONFIRM = 'password-reset-confirm/<uidb64>/<token>/'
 #     # ...
 #     # 'allauth.account.auth_backends.AuthenticationBackend',
 # )
+import logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+TIME_ZONE = 'Asia/Kolkata'

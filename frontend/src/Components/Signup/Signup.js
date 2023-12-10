@@ -19,7 +19,12 @@ export const Signup = () => {
       password.length > 0 &&
       isPasswordMached
     ) {
-      const data = await AuthService.register(firstname, lastname, email, password);
+      const data = await AuthService.register(
+        firstname,
+        lastname,
+        email,
+        password
+      );
       if (data.status === 200) {
         let user = data.data.token;
         localStorage.setItem("user", JSON.stringify(user));

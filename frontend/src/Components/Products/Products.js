@@ -1,29 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { Cards } from "./Cards";
 import { Pagination } from "../Pagination/Pagination";
-import axios from "axios";
+import ProductConext from "../../Context/Product/productContext";
+// import axios from "axios";
 export const Products = () => {
-  const [productsList, setProductsList] = useState([]);
-
-  const getProducts = async () => {
-    let headers = {
-      Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NDk3NzM3LCJpYXQiOjE2OTQ5NjE3MzcsImp0aSI6IjAxM2ZlNzM5YjA0NDQxYjJhZTQ3NTY3ZDI2MTQwYzljIiwidXNlcl9pZCI6MX0.025CsgkwhIyMyCSLUBEPMOo1avoaSjlvRTiawJVwthA",
-    };
-    const response = await axios.get("http://localhost:8000/products/", {
-      headers: headers,
-    });
-    // const data = await response.json();
-    // const data = response
-    console.log(response);
-    const data = response.data;
-    setProductsList(data);
-  };
+  // const [productsList, setProductsList] = useState([]);
+  const { products, getAllProducts } = useContext(ProductConext);
 
   useEffect(() => {
     let user = JSON.parse(localStorage.getItem("user"));
     if (user) {
-      getProducts();
+      getAllProducts();
     }
     // eslint-disable-next-line
   }, []);
@@ -32,7 +19,7 @@ export const Products = () => {
       <div className="col-lg-9">
         <header className="d-sm-flex align-items-center border-bottom mb-4 pb-3">
           <strong className="d-block py-2">
-            {productsList.length} Items found{" "}
+            {products.length} Items found{" "}
           </strong>
           <div className="ms-auto">
             <select className="form-select d-inline-block w-auto border pt-1">
@@ -52,11 +39,11 @@ export const Products = () => {
           </div>
         </header>
         <div className="row">
-          {productsList.map((product) => (
+          {products.map((product) => (
             <Cards product={product} key={product.id} />
           ))}
         </div>
-        <Pagination products={productsList} />
+        <Pagination products={products} />
       </div>
     </>
   );

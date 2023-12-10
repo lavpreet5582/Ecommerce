@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 export const Cards = (props) => {
   const { product } = props;
   const [show, setShow] = useState(false);
+  const navigate = useNavigate();
 
   const showMore = () => setShow(true);
   const showLess = () => setShow(false);
@@ -17,14 +18,33 @@ export const Cards = (props) => {
       return description;
     }
   };
+
   const textDescription = (description) => {
     if (description.length <= TextLimit) {
       return null;
-    }else if(show){
-      return <button onClick={showLess}>Show Less</button>;
+    } else if (show) {
+      return (
+        <a
+          id="showLessMore"
+          href={() => false}
+          onClick={showLess}
+          style={{ cursor: "pointer", color: "blue" }}
+        >
+          Show Less
+        </a>
+      );
     }
-    return <button onClick={showMore}>Show More</button>;
-  }
+    return (
+      <a
+        id="showLessMore"
+        href={() => false}
+        onClick={showMore}
+        style={{ cursor: "pointer", color: "blue" }}
+      >
+        Show More
+      </a>
+    );
+  };
   return (
     <div>
       <div className="row justify-content-center mb-3">
@@ -53,7 +73,9 @@ export const Cards = (props) => {
                   </div>
                 </div>
                 <div className="col-xl-6 col-md-5 col-sm-7">
-                  <h5>{product.title}</h5>
+                  <div className="d-flex flex-row" onClick={() => navigate(`/products/${product.id}`)} style={{ cursor: "pointer" }}>
+                    <h5>{product.title}</h5>
+                  </div>
                   <div className="d-flex flex-row">
                     <div className="text-warning mb-1 me-2">
                       <i className="fa fa-star"></i>

@@ -12,6 +12,7 @@ class Product(TimeStampedModel):
     description = models.TextField()
     category = models.ForeignKey('Categories', on_delete=models.CASCADE, related_name='products')
     image = models.ImageField(upload_to='products/static/images', blank=True, null=True, default=None)
+    quantity_in_stock = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title

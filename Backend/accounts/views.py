@@ -1,23 +1,17 @@
-from rest_framework import viewsets, permissions, status
-from rest_framework.response import Response
-from django.contrib.auth import authenticate
-from rest_framework.decorators import action
-from accounts.utils import get_user_token
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth import get_user_model
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.core.mail import send_mail
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.urls import reverse
-
 from accounts.models import User
 from accounts.serializer import LoginSerializer, UserSerializerData
+from accounts.utils import get_user_token
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class UserViewSet(viewsets.ViewSet):
@@ -30,8 +24,10 @@ class UserViewSet(viewsets.ViewSet):
         if logged_in_user.is_superuser:
             user = User.objects.all()
             serializer = UserSerializerData(user, many=True)
+            logger.info("[Get all users] %s", serializer.data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
+            logger.error("[Get all users] Not allowed")
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     @action(detail=False, methods=['POST'], name='Signup')
@@ -40,11 +36,15 @@ class UserViewSet(viewsets.ViewSet):
             user_data = request.data
             serializer = UserSerializerData(data=user_data)
             if not serializer.is_valid():
+                logger.error("[Signup] %s", serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             token = get_user_token(serializer.instance)
-            return Response({'token': token}, status=status.HTTP_200_OK)
+            logger.info(
+                "[Signup] User Created Successfully with email %s.", request.data['email'])
+            return Response({'token': token, 'is_superuser': serializer.instance.is_superuser}, status=status.HTTP_200_OK)
         except Exception as e:
+            logger.error("[Signup] %s", str(e))
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['POST'], name='Login')
@@ -53,6 +53,7 @@ class UserViewSet(viewsets.ViewSet):
             user_data = request.data
             serializer = LoginSerializer(data=user_data)
             if not serializer.is_valid():
+                logger.error("[Login] %s", serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
             email = serializer.validated_data['email']
@@ -64,32 +65,32 @@ class UserViewSet(viewsets.ViewSet):
 
             token = get_user_token(user)
             access_token = str(token)
-            return Response({'token': access_token}, status=status.HTTP_200_OK)
+            logger.info(
+                "[Login] User Logged In Successfully with email %s.", email)
+            return Response({'token': access_token, 'is_superuser': user.is_superuser}, status=status.HTTP_200_OK)
 
         except Exception as e:
+            logger.error("[Login] %s", str(e))
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['POST'], name='Reset Password')
     def reset_password(self, request):
         email = request.data.get('email')
+        frontend_url = settings.FRONTEND.get('URL')
         if not email:
+            # Return an error
+            logger.error("[Reset Password] Email Not Found in request.")
             return Response({'detail': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = User.objects.get(email=email)
+            logger.info("[Reset Password] User Found with email %s.", email)
         except User.DoesNotExist:
+            logger.error(
+                "[Reset Password] User with this email does not exist.")
             return Response({'detail': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Generate a reset token and UID
-        # token = default_token_generator.make_token(user)
-        # uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-        # Build the reset URL
-        # current_site = get_current_site(request)
-        # reset_url = reverse('password_reset_confirm', kwargs={
-        #                     'uidb64': uid, 'token': token})
-        # reset_url = f'http://{current_site.domain}{reset_url}'
-        reset_url = f"http://localhost:3000/change-password/{user.pk}"
+        reset_url = f"{frontend_url}/{user.pk}"
 
         # Send the reset email
         subject = 'Password Reset'
@@ -103,22 +104,28 @@ class UserViewSet(viewsets.ViewSet):
         message = render_to_string('password_reset_email.html', context)
         from_email = 'lsv2885655@gmail.com'  # Replace with your email address
         send_mail(subject, message, from_email, [user.email])
+        logger.info(
+            "[Reset Password] Password reset email sent to %s.", user.email)
 
         return Response({'detail': 'Password reset email has been sent.'}, status=status.HTTP_200_OK)
-
 
     @action(detail=False, methods=['POST'], name='Change Password')
     def change_password(self, request, pk=None):
         password = request.data.get('password')
         if not password:
+            # Return an error
+            logger.error("[Change Password] Password Not Found in request.")
             return Response({'detail': 'Password is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = User.objects.get(id=pk)
+            logger.info("[Change Password] User Found with id %s.", pk)
         except User.DoesNotExist:
+            logger.error("[Change Password] User with this id does not exist.")
             return Response({'detail': 'User with this id does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
         user.set_password(password)
         user.save()
-
-        return Response({'detail': 'Password changed successfully.'}, status=status.HTTP_200_OK)
+        logger.info(
+            "[Change Password] Password Changed Successfully for user with id %s.", pk)
+        return Response({'detail': 'Password changed successfully! Please Login Again.'}, status=status.HTTP_200_OK)
